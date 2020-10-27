@@ -90,7 +90,10 @@ impl_systems!(A, B, C, D, E, G, H, I, J, K, L, M,);
 #[cfg(test)]
 mod tests {
     use crate::*;
+    use wasm_bindgen_test::*;
+
     #[test]
+    #[wasm_bindgen_test]
     fn convert_system() {
         let _ = generic::<u32>.system();
         fn tmp(_var1: &u32, _var2: &u64, _var3: &mut i32, _var4: &mut i64) -> SystemResult {
@@ -120,6 +123,7 @@ mod tests {
     }
 
     #[test]
+    #[wasm_bindgen_test]
     fn system_is_send() {
         let x = 6;
         send(
@@ -142,6 +146,7 @@ mod tests {
     fn send<T: Send>(_t: T) {}
 
     #[test]
+    #[wasm_bindgen_test]
     fn manual_system_run() {
         let mut world = World::default();
         world.initialize::<u32>();
@@ -149,6 +154,7 @@ mod tests {
     }
 
     #[test]
+    #[wasm_bindgen_test]
     fn system_replace_resource() {
         #[derive(Default)]
         pub struct A;

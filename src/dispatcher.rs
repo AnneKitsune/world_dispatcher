@@ -87,7 +87,10 @@ impl Dispatcher {
 #[cfg(test)]
 mod tests {
     use crate::*;
+    use wasm_bindgen_test::*;
+
     #[test]
+    #[wasm_bindgen_test]
     fn simple_dispatcher() {
         #[derive(Default)]
         pub struct A;
@@ -101,6 +104,7 @@ mod tests {
         assert!(world.get_mut::<A>().is_ok());
     }
     #[test]
+    #[wasm_bindgen_test]
     fn generic_simple_dispatcher() {
         #[derive(Default)]
         pub struct A;
@@ -120,6 +124,7 @@ mod tests {
     }
     #[cfg(feature = "parallel")]
     #[test]
+    #[wasm_bindgen_test]
     fn par_distpach() {
         #[derive(Default)]
         pub struct A;
@@ -135,6 +140,7 @@ mod tests {
 
     #[cfg(feature = "parallel")]
     #[test]
+    #[wasm_bindgen_test]
     fn dispatch_par_stages() {
         #[derive(Default)]
         struct A;

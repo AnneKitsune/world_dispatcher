@@ -40,7 +40,10 @@ macro_rules! system_error {
 #[cfg(test)]
 mod tests {
     use crate::*;
+    use wasm_bindgen_test::*;
+
     #[test]
+    #[wasm_bindgen_test]
     fn system_return_custom_error() {
         #[derive(Debug)]
         struct CustomError;
