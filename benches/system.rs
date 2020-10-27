@@ -7,8 +7,25 @@ use test::Bencher;
 
 #[derive(Default)]
 struct A;
-fn smol() -> SystemResult {Ok(())}
-fn big(_a: &A, _b: &A, _c: &A, _d: &A, _e: &A, _f: &A, _g: &A, _h: &A, _i: &A, _j: &A, _k: &A, _l: &A) -> SystemResult {Ok(())}
+fn smol() -> SystemResult {
+    Ok(())
+}
+fn big(
+    _a: &A,
+    _b: &A,
+    _c: &A,
+    _d: &A,
+    _e: &A,
+    _f: &A,
+    _g: &A,
+    _h: &A,
+    _i: &A,
+    _j: &A,
+    _k: &A,
+    _l: &A,
+) -> SystemResult {
+    Ok(())
+}
 
 #[bench]
 fn convert_system_fn_small(b: &mut Bencher) {
@@ -43,4 +60,3 @@ fn system_run_small(b: &mut Bencher) {
         sys.run(&world).unwrap();
     });
 }
-

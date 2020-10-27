@@ -28,23 +28,23 @@ impl DispatcherBuilder {
         let mut stage: Vec<System> = vec![];
         let mut locks = vec![];
         for sys in self.systems {
-                let mut fetch = (sys.lock)(world, &mut locks);
-                if let Err(_) = fetch {
-                    stages.push(stage);
-                    stage = vec![];
-                    locks.clear();
-                    fetch = (sys.lock)(world, &mut locks);
-                }
-                if let Err(_) = fetch {
-                    panic!("System cannot be borrowed at all. This means it 
-                    uses the same resource twice it its signature.");
-                }
+            let mut fetch = (sys.lock)(world, &mut locks);
+            if let Err(_) = fetch {
+                stages.push(stage);
+                stage = vec![];
+                locks.clear();
+                fetch = (sys.lock)(world, &mut locks);
+            }
+            if let Err(_) = fetch {
+                panic!(
+                    "System cannot be borrowed at all. This means it 
+                    uses the same resource twice it its signature."
+                );
+            }
             stage.push(sys);
         }
         stages.push(stage);
-        Dispatcher {
-            stages,
-        }
+        Dispatcher { stages }
     }
 }
 
@@ -93,9 +93,7 @@ mod tests {
         pub struct A;
         let mut world = World::default();
         let sys = (|_comps: &A| Ok(())).system();
-        let mut dispatch = DispatcherBuilder::new()
-            .add_system(sys)
-            .build(&mut world);
+        let mut dispatch = DispatcherBuilder::new().add_system(sys).build(&mut world);
         dispatch.run_seq(&world).unwrap();
         dispatch.run_seq(&world).unwrap();
         dispatch.run_seq(&world).unwrap();
@@ -107,7 +105,9 @@ mod tests {
         #[derive(Default)]
         pub struct A;
         let mut world = World::default();
-        fn sys<T>(_t: &T) -> SystemResult {Ok(())}
+        fn sys<T>(_t: &T) -> SystemResult {
+            Ok(())
+        }
         let mut dispatch = DispatcherBuilder::new()
             .add(sys::<A>)
             .add_system(sys::<A>.system())
@@ -125,9 +125,7 @@ mod tests {
         pub struct A;
         let mut world = World::default();
         let sys = (|_comps: &A| Ok(())).system();
-        let mut dispatch = DispatcherBuilder::new()
-            .add_system(sys)
-            .build(&mut world);
+        let mut dispatch = DispatcherBuilder::new().add_system(sys).build(&mut world);
         dispatch.run_par(&world).unwrap();
         dispatch.run_par(&world).unwrap();
         dispatch.run_par(&world).unwrap();
@@ -146,12 +144,20 @@ mod tests {
         world.initialize::<A>();
         world.initialize::<B>();
         // Stage 1
-        fn sys1(_a: &A, _b: &B) -> SystemResult {Ok(())}
-        fn sys2(_a: &A, _b: &B) -> SystemResult {Ok(())}
+        fn sys1(_a: &A, _b: &B) -> SystemResult {
+            Ok(())
+        }
+        fn sys2(_a: &A, _b: &B) -> SystemResult {
+            Ok(())
+        }
         // Stage 2
-        fn sys3(_a: &A, _b: &mut B) -> SystemResult {Ok(())}
+        fn sys3(_a: &A, _b: &mut B) -> SystemResult {
+            Ok(())
+        }
         // Stage 3
-        fn sys4(_a: &A, _b: &mut B) -> SystemResult {Ok(())}
+        fn sys4(_a: &A, _b: &mut B) -> SystemResult {
+            Ok(())
+        }
         let mut dispatch = DispatcherBuilder::new()
             .add(sys1)
             .add(sys2)
@@ -172,12 +178,9 @@ mod tests {
         assert_eq!(dispatch.stages[0].len(), 2);
         dispatch.run_par(&world).unwrap();
 
-        let mut dispatch = DispatcherBuilder::new()
-            .add(sys1)
-            .build(&mut world);
+        let mut dispatch = DispatcherBuilder::new().add(sys1).build(&mut world);
         assert_eq!(dispatch.stages.len(), 1);
         assert_eq!(dispatch.stages[0].len(), 1);
         dispatch.run_par(&world).unwrap();
     }
 }
-

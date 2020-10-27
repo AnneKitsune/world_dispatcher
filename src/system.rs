@@ -5,7 +5,8 @@ pub use crate::*;
 /// execution sequence.
 pub struct System {
     pub(crate) initialize: Box<dyn Fn(&mut World) + Send>,
-    pub(crate) lock: Box<dyn Fn(*const World, *mut Vec<Box<dyn RefLifetime>>) -> SystemResult + Send>,
+    pub(crate) lock:
+        Box<dyn Fn(*const World, *mut Vec<Box<dyn RefLifetime>>) -> SystemResult + Send>,
     pub(crate) run_fn: Box<dyn FnMut(&World) -> SystemResult + Send>,
 }
 
@@ -86,7 +87,6 @@ macro_rules! impl_systems {
 impl_system!();
 impl_systems!(A, B, C, D, E, G, H, I, J, K, L, M,);
 
-
 #[cfg(test)]
 mod tests {
     use crate::*;
@@ -99,7 +99,20 @@ mod tests {
         // Technically reusing the same type is incorrect and causes a runtime panic.
         // TODO If at all possible, ensuring that types are strictly different at compile time
         // would be ideal.
-        fn tmp2(_var1: &u32, _var2: &u64, _var3: &mut i32, _var4: &mut i64, _var5: &mut i64, _var6: &mut i64, _var7: &mut i64, _var8: &mut i64, _var9: &mut i64, _var10: &mut i64, _var11: &mut i64, _var12: &mut i64) -> SystemResult {
+        fn tmp2(
+            _var1: &u32,
+            _var2: &u64,
+            _var3: &mut i32,
+            _var4: &mut i64,
+            _var5: &mut i64,
+            _var6: &mut i64,
+            _var7: &mut i64,
+            _var8: &mut i64,
+            _var9: &mut i64,
+            _var10: &mut i64,
+            _var11: &mut i64,
+            _var12: &mut i64,
+        ) -> SystemResult {
             Ok(())
         }
         let _ = tmp.system();
@@ -109,13 +122,23 @@ mod tests {
     #[test]
     fn system_is_send() {
         let x = 6;
-        send((move |_var1: &u32| {let _y = x; Ok(())}).system());
-        send((|| {Ok(())}).system());
+        send(
+            (move |_var1: &u32| {
+                let _y = x;
+                Ok(())
+            })
+            .system(),
+        );
+        send((|| Ok(())).system());
         send(sys.system());
     }
 
-    fn sys(_var1: &u32) -> SystemResult {Ok(())}
-    fn generic<T>(_t: &T) -> SystemResult {Ok(())}
+    fn sys(_var1: &u32) -> SystemResult {
+        Ok(())
+    }
+    fn generic<T>(_t: &T) -> SystemResult {
+        Ok(())
+    }
     fn send<T: Send>(_t: T) {}
 
     #[test]
@@ -135,13 +158,13 @@ mod tests {
         };
         let mut world = World::default();
         let mut my_system = (|_a: &A, b: &mut B| {
-            let b2 = B {x: 45};
+            let b2 = B { x: 45 };
             *b = b2;
             Ok(())
-        }).system();
+        })
+        .system();
         my_system.initialize(&mut world);
         my_system.run(&world).unwrap();
         assert_eq!(world.get::<B>().unwrap().x, 45);
     }
 }
-
