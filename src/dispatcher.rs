@@ -107,6 +107,7 @@ mod tests {
         assert!(world.get::<A>().is_ok());
         assert!(world.get_mut::<A>().is_ok());
     }
+
     #[test]
     #[wasm_bindgen_test]
     fn generic_simple_dispatcher() {
@@ -126,6 +127,7 @@ mod tests {
         assert!(world.get::<A>().is_ok());
         assert!(world.get_mut::<A>().is_ok());
     }
+
     #[cfg(feature = "parallel")]
     #[test]
     #[wasm_bindgen_test]
