@@ -56,15 +56,16 @@ pub struct Dispatcher {
     stages: Vec<Vec<System>>,
 }
 impl Dispatcher {
-    // TODO is &mut required for Dispatcher?
     /// Runs the systems one after the other, one at a time.
     pub fn run_seq(&mut self, world: &World) -> SystemResult {
         #[cfg(feature = "profiler")]
         profile_scope!("dispatcher_run_seq");
 
         for stage in &mut self.stages {
-            // TODO: error handling
-            stage.iter_mut().for_each(|s| s.run(world).unwrap());
+            let errors = stage.iter_mut().map(|s| s.run(world)).flat_map(|r| r.err()).collect::<Vec<_>>();
+            if errors.len() > 0 {
+                return Err(EcsError::DispatcherExecutionFailed(errors));
+            }
         }
         Ok(())
     }
@@ -78,12 +79,15 @@ impl Dispatcher {
         profile_scope!("dispatcher_run_par");
 
         for stage in &mut self.stages {
-            // TODO: error handling
-            stage.par_iter_mut().for_each(|s| s.run(world).unwrap());
+            let errors = stage.par_iter_mut().map(|s| s.run(world)).flat_map(|r| r.err()).collect::<Vec<_>>();
+            if errors.len() > 0 {
+                return Err(EcsError::DispatcherExecutionFailed(errors));
+            }
         }
         Ok(())
     }
 }
+
 #[cfg(test)]
 mod tests {
     use crate::*;
