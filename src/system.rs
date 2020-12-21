@@ -100,8 +100,7 @@ mod tests {
             Ok(())
         }
         // Technically reusing the same type is incorrect and causes a runtime panic.
-        // TODO If at all possible, ensuring that types are strictly different at compile time
-        // would be ideal.
+        // However, there doesn't seem to be a clean way to handle type inequality in generics.
         fn tmp2(
             _var1: &u32,
             _var2: &u64,
