@@ -10,7 +10,7 @@ pub struct World {
     res: HashMap<TypeId, RefCell<Box<dyn Resource>>, BuildHasherDefault<TypeIdHasher>>,
 }
 
-// Safe as long as you don't call initialize in a thread other than main.
+// Safe as long as you don't call initialize in multiple threads at once.
 // This happens to always be the case as you can't borrow immutable and mutable
 // at the same time.
 unsafe impl Sync for World {}
@@ -51,3 +51,36 @@ impl World {
             .and_then(|i| Ok(RefMut::map(i, |j| j.downcast_mut::<T>().unwrap())))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::*;
+    #[test]
+    fn init_borrow() {
+        let mut world = World::default();
+        world.initialize::<u32>();
+        *world.get_mut::<u32>().unwrap() = 5;
+        *world.get_mut::<u32>().unwrap() = 6;
+        {
+            let _long_borrow = world.get::<u32>().unwrap();
+            let _long_borrow2 = world.get::<u32>().unwrap();
+            let failing_borrow = world.get_mut::<u32>();
+            if let EcsError::AlreadyBorrowed = failing_borrow.err().unwrap() {
+                // good
+            } else {
+                unreachable!();
+            }
+        }
+        {
+            let _long_borrow = world.get_mut::<u32>().unwrap();
+            let failing_borrow = world.get::<u32>();
+            if let EcsError::AlreadyBorrowed = failing_borrow.err().unwrap() {
+                // good
+            } else {
+                unreachable!();
+            }
+        }
+        assert_eq!(*world.get_mut::<u32>().unwrap(), 6);
+    }
+}
+
