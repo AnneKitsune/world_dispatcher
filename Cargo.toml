@@ -1,6 +1,6 @@
 [package]
 name = "world_dispatcher"
-version = "0.99.0"
+version = "0.99.1"
 authors = ["Joël Lupien (Jojolepro) <jojolepro@jojolepro.com>"]
 edition = "2018"
 description = "Provides the System part of a full ECS, along with a fast dispatcher and world container."
@@ -15,6 +15,7 @@ repository = "https://git.jojolepro.com/world_dispatcher/"
 [features]
 profiler = ["thread_profiler", "thread_profiler/thread_profiler"]
 parallel = ["rayon"]
+big_systems = []
 
 [dependencies]
 downcast-rs = "1.2"

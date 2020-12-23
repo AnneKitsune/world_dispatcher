@@ -85,7 +85,11 @@ macro_rules! impl_systems {
 }
 
 impl_system!();
+#[cfg(not(feature="big_systems"))]
 impl_systems!(A, B, C, D, E, G, H, I, J, K, L, M,);
+// Sometimes I just hate rust. This compiles *very* slowly.
+#[cfg(feature="big_systems")]
+impl_systems!(A, B, C, D, E, G, H, I, J, K, L, M, O, P, Q, R);
 
 #[cfg(test)]
 mod tests {
