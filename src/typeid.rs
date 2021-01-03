@@ -1,4 +1,4 @@
-pub use crate::*;
+use crate::*;
 
 /// A hasher for `TypeId<T>`.
 /// According to benchmarks, using it seems to increase performance

@@ -1,8 +1,9 @@
-pub use crate::*;
+use crate::*;
 
 /// The type of `Resource`s.
 /// All types having a 'static lifetime automatically implement this.
-pub(crate) trait Resource: 'static + Downcast {}
+#[doc(hidden)]
+pub trait Resource: 'static + Downcast {}
 impl<T> Resource for T where T: 'static {}
 impl_downcast!(Resource);
 

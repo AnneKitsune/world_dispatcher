@@ -1,7 +1,7 @@
-pub use crate::*;
+use crate::*;
 
 /// Struct used to run a system function using the world.
-/// This struct is also used internally by the `Dispatcher` to coherent
+/// This struct is also used internally by the `Dispatcher` to create a coherent
 /// execution sequence.
 pub struct System {
     pub(crate) initialize: Box<dyn Fn(&mut World) + Send>,
@@ -27,7 +27,8 @@ impl System {
 
 /// Converts a function into a `System`. It is required to execute a function
 /// automatically from `World`'s resources.
-/// This trait is automatically implemented for functions taking 12 arguments
+/// This trait is automatically implemented for functions taking 12 arguments (16 if using the
+/// `big_systems` feature)
 /// or less where:
 /// - All arguments are immutable or mutable references.
 /// - All immutable references are placed *before* all mutable references.

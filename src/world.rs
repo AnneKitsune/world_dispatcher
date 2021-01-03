@@ -1,4 +1,4 @@
-pub use crate::*;
+use crate::*;
 
 /// Contains data indexed by type.
 /// World allows to dynamically enforce the rust rules of borrowing and ownership
@@ -7,7 +7,7 @@ pub use crate::*;
 /// - The same type cannot be borrowed mutably more than once at the same time.
 #[derive(Default)]
 pub struct World {
-    res: HashMap<TypeId, RefCell<Box<dyn Resource>>, BuildHasherDefault<TypeIdHasher>>,
+    pub(crate) res: HashMap<TypeId, RefCell<Box<dyn Resource>>, BuildHasherDefault<TypeIdHasher>>,
 }
 
 // Safe as long as you don't call initialize in multiple threads at once.
@@ -49,6 +49,19 @@ impl World {
             .ok_or(EcsError::NotInitialized)
             .and_then(|i| i.try_borrow_mut().map_err(|_| EcsError::AlreadyBorrowed))
             .and_then(|i| Ok(RefMut::map(i, |j| j.downcast_mut::<T>().unwrap())))
+    }
+    /// Get a mutable reference to a resource by its type id. Useful if using
+    /// dynamic dispatching.
+    /// Will return an error if the type is:
+    /// - Non initialized
+    /// - Already borrowed immutably
+    /// - Already borrowed mutably
+    #[doc(hidden)]
+    pub fn get_by_typeid(&self, typeid: &TypeId) -> Result<RefMut<Box<dyn Resource>>, EcsError> {
+        self.res
+            .get(typeid)
+            .ok_or(EcsError::NotInitialized)
+            .and_then(|i| i.try_borrow_mut().map_err(|_| EcsError::AlreadyBorrowed))
     }
 }
 

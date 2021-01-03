@@ -1,4 +1,4 @@
-pub use crate::*;
+use crate::*;
 
 /// A builder that accumulates systems to be inserted into a `Dispatcher`.
 #[derive(Default, new)]

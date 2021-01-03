@@ -1,8 +1,9 @@
 #![feature(unboxed_closures)]
 
-//! Resources MUST implement default
-//! Resources MAY use Mutex<Arc<T>> to be Send+Sync
-//! Resources MUST be 'static
+//! Notes about resources:
+//! - Resources MUST implement default
+//! - Resources MAY use Mutex<Arc<T>> to be Send+Sync
+//! - Resources MUST be 'static
 
 use derive_new::new;
 use downcast_rs::{impl_downcast, Downcast};
@@ -28,5 +29,5 @@ pub use self::dispatcher::*;
 pub use self::error::*;
 pub use self::resource::*;
 pub use self::system::*;
-pub use self::typeid::*;
+use self::typeid::*;
 pub use self::world::*;
