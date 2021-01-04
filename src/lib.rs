@@ -1,5 +1,3 @@
-#![feature(unboxed_closures)]
-
 //! Notes about resources:
 //! - Resources MUST implement default
 //! - Resources MAY use Mutex<Arc<T>> to be Send+Sync
