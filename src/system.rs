@@ -90,7 +90,12 @@ impl_system!();
 impl_systems!(A, B, C, D, E, G, H, I, J, K, L, M,);
 // Sometimes I just hate rust. This compiles *very* slowly.
 #[cfg(feature="big_systems")]
-impl_systems!(A, B, C, D, E, G, H, I, J, K, L, M, O, P, Q, R,);
+// 16
+//impl_systems!(A, B, C, D, E, G, H, I, J, K, L, M, O, P, Q, R,);
+// 26, 17s build time
+//impl_systems!(A, B, C, D, E, G, H, I, J, K, L, M, O, P, Q, R, S, T, U, V, W, X, Y, Z, AA,);
+// 22, 10s build time
+impl_systems!(A, B, C, D, E, G, H, I, J, K, L, M, O, P, Q, R, S, T, U, V, W,);
 
 #[cfg(test)]
 mod tests {
