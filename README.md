@@ -41,7 +41,8 @@ fn main() {
 ```
 
 It is also possible to convert most functions into systems.
-There are four requirements for this:
+
+There are five requirements for this:
 - Take only & and &mut references as arguments
 - Return a SystemResult
 - Use all & references before all &mut references in the arguments.
