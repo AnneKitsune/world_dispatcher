@@ -27,12 +27,14 @@ impl System {
 
 /// Converts a function into a `System`. It is required to execute a function
 /// automatically from `World`'s resources.
-/// This trait is automatically implemented for functions taking 12 arguments (16 if using the
+/// This trait is automatically implemented for functions taking 12 arguments (22 if using the
 /// `big_systems` feature)
 /// or less where:
 /// - All arguments are immutable or mutable references.
 /// - All immutable references are placed *before* all mutable references.
 /// - All arguments implement `Default`.
+/// - Does not use the same type twice.
+/// - Returns a `SystemResult` (usually just `Ok(())`).
 pub trait IntoSystem<R> {
     fn system(self) -> System;
 }
