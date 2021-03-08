@@ -1,10 +1,18 @@
 # World Dispatcher
 The system part of a full ECS (Entity-Component-System).
-It also contains a `World` structure, which holds the game data used by systems.
-The `Dispatcher` is used to execute systems in parallel and in an optimised
-order.
 
-Compatible with all platforms, including WASM!
+It also contains a `World` structure, which holds the game data used by systems,
+as well as the `Dispatcher` that is used to execute systems in parallel and in 
+an optimised order.
+
+# Why would you use this ECS library?
+
+* Compatible with all platforms, including WASM!
+* Fast enough on *every* operation, not just iteration.
+* Public domain licensing: CC0
+* Minimal amount of dependencies.
+* Small code size.
+* Stable, tested, benchmarked, 100% completed.
 
 # Usage
 Add the following to you Cargo.toml file:
