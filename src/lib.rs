@@ -3,7 +3,6 @@
 //! - Resources MAY use Mutex<Arc<T>> to be Send+Sync
 //! - Resources MUST be 'static
 
-use derive_new::new;
 use downcast_rs::{impl_downcast, Downcast};
 use std::any::TypeId;
 use std::cell::{Ref, RefCell, RefMut};

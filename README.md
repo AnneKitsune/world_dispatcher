@@ -4,10 +4,12 @@ It also contains a `World` structure, which holds the game data used by systems.
 The `Dispatcher` is used to execute systems in parallel and in an optimised
 order.
 
+Compatible with all platforms, including WASM!
+
 # Usage
 Add the following to you Cargo.toml file:
 ```
-world_dispatcher = "0.99.0"
+world_dispatcher = "1.0.0"
 ```
 
 Use it like so:
@@ -69,18 +71,15 @@ fn main() {
 }
 ```
 
-### Focks Team Information
+### Maintainer Information
+
 Maintainer: Jojolepro
-
 Contact: jojolepro [at] jojolepro [dot] com
-
-Commercial license available: yes
-
-[Focks Team Website](https://jojolepro.com/focks)
+Website: [jojolepro.com](https://jojolepro.com)
+Patreon: [patreon](https://patreon.com/jojolepro)
 
 ### Licence
-AGPL-3.0. You can buy commercial licenses [here](https://jojolepro.com/focks/).
 
-See full license in LICENSE file.
+CC0, public domain.
+TLDR: You can do whatever you want with it. Have fun!
 
-Copyright (C) 2020 Jojolepro.

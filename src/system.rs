@@ -170,7 +170,7 @@ mod tests {
         #[derive(Default)]
         pub struct B {
             x: u32,
-        };
+        }
         let mut world = World::default();
         let mut my_system = (|_a: &A, b: &mut B| {
             let b2 = B { x: 45 };

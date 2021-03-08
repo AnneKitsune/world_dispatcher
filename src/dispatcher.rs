@@ -1,13 +1,19 @@
 use crate::*;
 
 /// A builder that accumulates systems to be inserted into a `Dispatcher`.
-#[derive(Default, new)]
+#[derive(Default)]
 pub struct DispatcherBuilder {
-    #[new(default)]
     systems: Vec<System>,
 }
 
 impl DispatcherBuilder {
+    /// Creates a new `DispatcherBuilder`.
+    pub fn new() -> Self {
+        Self {
+            systems: Vec::default(),
+        }
+    }
+
     /// Adds a function implementing `IntoSystem` to the system pool.
     pub fn add<R, F: IntoSystem<R>>(mut self, into_system: F) -> Self {
         self.systems.push(into_system.system());
