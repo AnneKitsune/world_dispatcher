@@ -8,7 +8,7 @@ keywords = ["game", "ecs"]
 categories = ["game-engines"]
 license = "CC0-1.0"
 exclude = ["doc"]
-repository = "https://git.jojolepro.com/world_dispatcher/"
+repository = "https://github.com/jojolepro/world_dispatcher/"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
