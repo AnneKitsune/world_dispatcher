@@ -80,6 +80,10 @@ fn main() {
 }
 ```
 
+If you need more than 12 system parameters, there is a feature called `big_systems`
+which will bump that limit to 22. **First** compilation time will be around 10
+seconds if using it. Following compilations will be instant.
+
 ### Maintainer Information
 
 * Maintainer: Jojolepro
