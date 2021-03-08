@@ -82,13 +82,14 @@ fn main() {
 
 ### Maintainer Information
 
-Maintainer: Jojolepro
-Contact: jojolepro [at] jojolepro [dot] com
-Website: [jojolepro.com](https://jojolepro.com)
-Patreon: [patreon](https://patreon.com/jojolepro)
+* Maintainer: Jojolepro
+* Contact: jojolepro [at] jojolepro [dot] com
+* Website: [jojolepro.com](https://jojolepro.com)
+* Patreon: [patreon](https://patreon.com/jojolepro)
 
 ### Licence
 
 CC0, public domain.
+
 TLDR: You can do whatever you want with it. Have fun!
 
