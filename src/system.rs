@@ -42,7 +42,7 @@ pub trait IntoSystem<R> {
 macro_rules! impl_system {
     ($($id:ident,)* $(&mut $idmut:ident,)*) => {
         //impl<$($id,)* $($idmut),*> RefLifetime for ($(&$id,)* $(&mut $idmut,)*) {}
-        impl<$($id,)* $($idmut,)* F> IntoSystem<($(&$id,)* $(&mut $idmut,)*)> for F
+        impl<$($id: Send + Sync,)* $($idmut: Send + Sync,)* F> IntoSystem<($(&$id,)* $(&mut $idmut,)*)> for F
         where
             $($id: Default+'static,)*
             $($idmut: Default+'static,)*

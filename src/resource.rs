@@ -3,8 +3,8 @@ use crate::*;
 /// The type of `Resource`s.
 /// All types having a 'static lifetime automatically implement this.
 #[doc(hidden)]
-pub trait Resource: 'static + Downcast {}
-impl<T> Resource for T where T: 'static {}
+pub trait Resource: Send + Sync + 'static + Downcast {}
+impl<T> Resource for T where T: Send + Sync + 'static {}
 impl_downcast!(Resource);
 
 /// Hacky trait to extend the lifetime of a Ref<'a, T>, which is used

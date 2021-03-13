@@ -21,7 +21,7 @@ impl World {
     ///
     /// It is suggested to use a macro to collect all
     /// the resources and initialize all of them.
-    pub fn initialize<T: Default + 'static>(&mut self) {
+    pub fn initialize<T: Default + Send + Sync + 'static>(&mut self) {
         if !self.res.contains_key(&TypeId::of::<T>()) {
             self.res
                 .insert(TypeId::of::<T>(), AtomicRefCell::new(Box::new(T::default())));
@@ -31,7 +31,7 @@ impl World {
     /// Will return an error if the type is:
     /// - Non initialized
     /// - Already borrowed mutably
-    pub fn get<T: 'static>(&self) -> Result<AtomicRef<T>, EcsError> {
+    pub fn get<T: Send + Sync + 'static>(&self) -> Result<AtomicRef<T>, EcsError> {
         self.res
             .get(&TypeId::of::<T>())
             .ok_or(EcsError::NotInitialized)
@@ -43,7 +43,7 @@ impl World {
     /// - Non initialized
     /// - Already borrowed immutably
     /// - Already borrowed mutably
-    pub fn get_mut<T: 'static>(&self) -> Result<AtomicRefMut<T>, EcsError> {
+    pub fn get_mut<T: Send + Sync + 'static>(&self) -> Result<AtomicRefMut<T>, EcsError> {
         self.res
             .get(&TypeId::of::<T>())
             .ok_or(EcsError::NotInitialized)
