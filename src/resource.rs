@@ -12,7 +12,7 @@ impl_downcast!(Resource);
 /// Import this if you get errors where RefLifetime is not implemented for
 /// your systems.
 pub(crate) trait RefLifetime {}
-impl<'a, T> RefLifetime for Ref<'a, T> {}
-impl<'a, T> RefLifetime for RefMut<'a, T> {}
+impl<'a, T> RefLifetime for AtomicRef<'a, T> {}
+impl<'a, T> RefLifetime for AtomicRefMut<'a, T> {}
 impl<'a, T> RefLifetime for &'a T {}
 impl<'a, T> RefLifetime for &'a mut T {}

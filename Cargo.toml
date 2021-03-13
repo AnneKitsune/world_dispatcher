@@ -1,6 +1,6 @@
 [package]
 name = "world_dispatcher"
-version = "1.0.3"
+version = "1.1.0"
 authors = ["Joël Lupien (Jojolepro) <jojolepro@jojolepro.com>"]
 edition = "2018"
 description = "Provides the System part of a full ECS, along with a fast dispatcher and world container."
@@ -21,6 +21,7 @@ big_systems = []
 downcast-rs = "1.2"
 rayon = { version = "1.4.0", optional = true }
 thread_profiler = { version = "0.3.0", optional = true }
+atomic_refcell = { git = "https://github.com/jojolepro/atomic_refcell" }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"

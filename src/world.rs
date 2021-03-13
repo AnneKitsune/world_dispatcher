@@ -7,13 +7,13 @@ use crate::*;
 /// - The same type cannot be borrowed mutably more than once at the same time.
 #[derive(Default)]
 pub struct World {
-    pub(crate) res: HashMap<TypeId, RefCell<Box<dyn Resource>>, BuildHasherDefault<TypeIdHasher>>,
+    pub(crate) res: HashMap<TypeId, AtomicRefCell<Box<dyn Resource>>, BuildHasherDefault<TypeIdHasher>>,
 }
 
 // Safe as long as you don't call initialize in multiple threads at once.
 // This happens to always be the case as you can't borrow immutable and mutable
 // at the same time.
-unsafe impl Sync for World {}
+//unsafe impl Sync for World {}
 
 impl World {
     /// Initializes a resource to its default value.
@@ -24,31 +24,31 @@ impl World {
     pub fn initialize<T: Default + 'static>(&mut self) {
         if !self.res.contains_key(&TypeId::of::<T>()) {
             self.res
-                .insert(TypeId::of::<T>(), RefCell::new(Box::new(T::default())));
+                .insert(TypeId::of::<T>(), AtomicRefCell::new(Box::new(T::default())));
         }
     }
     /// Get an immutable reference to a resource by type.
     /// Will return an error if the type is:
     /// - Non initialized
     /// - Already borrowed mutably
-    pub fn get<T: 'static>(&self) -> Result<Ref<T>, EcsError> {
+    pub fn get<T: 'static>(&self) -> Result<AtomicRef<T>, EcsError> {
         self.res
             .get(&TypeId::of::<T>())
             .ok_or(EcsError::NotInitialized)
             .and_then(|i| i.try_borrow().map_err(|_| EcsError::AlreadyBorrowed))
-            .and_then(|i| Ok(Ref::map(i, |j| j.downcast_ref::<T>().unwrap())))
+            .and_then(|i| Ok(AtomicRef::map(i, |j| j.downcast_ref::<T>().unwrap())))
     }
     /// Get a mutable reference to a resource by type.
     /// Will return an error if the type is:
     /// - Non initialized
     /// - Already borrowed immutably
     /// - Already borrowed mutably
-    pub fn get_mut<T: 'static>(&self) -> Result<RefMut<T>, EcsError> {
+    pub fn get_mut<T: 'static>(&self) -> Result<AtomicRefMut<T>, EcsError> {
         self.res
             .get(&TypeId::of::<T>())
             .ok_or(EcsError::NotInitialized)
             .and_then(|i| i.try_borrow_mut().map_err(|_| EcsError::AlreadyBorrowed))
-            .and_then(|i| Ok(RefMut::map(i, |j| j.downcast_mut::<T>().unwrap())))
+            .and_then(|i| Ok(AtomicRefMut::map(i, |j| j.downcast_mut::<T>().unwrap())))
     }
     /// Get a mutable reference to a resource by its type id. Useful if using
     /// dynamic dispatching.
@@ -57,7 +57,7 @@ impl World {
     /// - Already borrowed immutably
     /// - Already borrowed mutably
     #[doc(hidden)]
-    pub fn get_by_typeid(&self, typeid: &TypeId) -> Result<RefMut<Box<dyn Resource>>, EcsError> {
+    pub fn get_by_typeid(&self, typeid: &TypeId) -> Result<AtomicRefMut<Box<dyn Resource>>, EcsError> {
         self.res
             .get(typeid)
             .ok_or(EcsError::NotInitialized)

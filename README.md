@@ -17,7 +17,7 @@ an optimised order.
 # Usage
 Add the following to you Cargo.toml file:
 ```
-world_dispatcher = "1.0.0"
+world_dispatcher = "*"
 ```
 
 Use it like so:
