@@ -5,7 +5,7 @@
 
 use downcast_rs::{impl_downcast, Downcast};
 use std::any::TypeId;
-use atomic_refcell::*;
+use atomic_refcell_try::*;
 use std::collections::HashMap;
 use std::error::Error;
 use std::hash::{BuildHasherDefault, Hasher};

@@ -21,7 +21,7 @@ big_systems = []
 downcast-rs = "1.2"
 rayon = { version = "1.4.0", optional = true }
 thread_profiler = { version = "0.3.0", optional = true }
-atomic_refcell = { git = "https://github.com/jojolepro/atomic_refcell" }
+atomic_refcell_try = "0.2.0"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
