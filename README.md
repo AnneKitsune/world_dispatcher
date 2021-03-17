@@ -1,3 +1,7 @@
+Support an Open Source Developer! :hearts:  
+
+[![Become a patron](https://c5.patreon.com/external/logo/become_a_patron_button.png)](https://www.patreon.com/jojolepro)
+
 # World Dispatcher
 The system part of a full ECS (Entity-Component-System).
 
