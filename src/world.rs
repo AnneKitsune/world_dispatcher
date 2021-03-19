@@ -10,11 +10,6 @@ pub struct World {
     pub(crate) res: HashMap<TypeId, AtomicRefCell<Box<dyn Resource>>, BuildHasherDefault<TypeIdHasher>>,
 }
 
-// Safe as long as you don't call initialize in multiple threads at once.
-// This happens to always be the case as you can't borrow immutable and mutable
-// at the same time.
-//unsafe impl Sync for World {}
-
 impl World {
     /// Initializes a resource to its default value.
     /// This is the only way to "insert" a resource.
