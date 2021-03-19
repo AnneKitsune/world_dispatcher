@@ -41,7 +41,6 @@ pub trait IntoSystem<R> {
 
 macro_rules! impl_system {
     ($($id:ident,)* $(&mut $idmut:ident,)*) => {
-        //impl<$($id,)* $($idmut),*> RefLifetime for ($(&$id,)* $(&mut $idmut,)*) {}
         impl<$($id: Send + Sync,)* $($idmut: Send + Sync,)* F> IntoSystem<($(&$id,)* $(&mut $idmut,)*)> for F
         where
             $($id: Default+'static,)*
@@ -55,6 +54,9 @@ macro_rules! impl_system {
                         $(_world.initialize::<$idmut>();)*
                     }),
                     lock: Box::new(|_world: *const World, _locked: *mut Vec<Box<dyn RefLifetime>>| {
+                        // Unsafe: used to extend the lifetime because we need to store the
+                        // reference of a value that is inside a RefCell to keep the counter
+                        // incremented.
                         $(unsafe {(&mut *_locked).push(Box::new((*_world).get::<$id>()?))};)*
                         $(unsafe {(&mut *_locked).push(Box::new((*_world).get_mut::<$idmut>()?))};)*
                         Ok(())
