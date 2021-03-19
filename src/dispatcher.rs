@@ -44,7 +44,7 @@ impl DispatcherBuilder {
             if let Err(_) = fetch {
                 panic!(
                     "System cannot be borrowed at all. This means it 
-                    uses the same resource twice it its signature."
+                    uses the same resource twice in its signature."
                 );
             }
             stage.push(sys);
