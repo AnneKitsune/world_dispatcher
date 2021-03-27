@@ -95,9 +95,3 @@ seconds if using it. Following compilations will be instant.
 * Website: [jojolepro.com](https://jojolepro.com)
 * Patreon: [patreon](https://patreon.com/jojolepro)
 
-### Licence
-
-CC0, public domain.
-
-TLDR: You can do whatever you want with it. Have fun!
-
