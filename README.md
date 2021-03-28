@@ -13,7 +13,6 @@ an optimised order.
 
 * Compatible with all platforms, including WASM!
 * Fast enough on *every* operation, not just iteration.
-* Public domain licensing: CC0
 * Minimal amount of dependencies.
 * Small code size.
 * Stable, tested, benchmarked, 100% completed.
