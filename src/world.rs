@@ -49,18 +49,6 @@ impl World {
             .and_then(|i| Ok(AtomicRefMut::map(i, |j| j.downcast_mut::<T>().unwrap())))
     }
 
-    /// Get an immutable reference to a resource by type, default-initializing it if not already
-    /// initialized.
-    ///
-    /// Will return an error if the type is:
-    /// - Already borrowed mutably
-    pub fn get_or_default<T: Default + Send + Sync + 'static>(
-        &mut self,
-    ) -> Result<AtomicRef<T>, EcsError> {
-        self.initialize::<T>();
-        self.get()
-    }
-
     /// Get a mutable reference to a resource by type, default-initializing it if not already
     /// initialized.
     ///
