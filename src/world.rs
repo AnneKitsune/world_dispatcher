@@ -51,15 +51,9 @@ impl World {
 
     /// Get a mutable reference to a resource by type, default-initializing it if not already
     /// initialized.
-    ///
-    /// Will return an error if the type is:
-    /// - Already borrowed immutably
-    /// - Already borrowed mutably
-    pub fn get_mut_or_default<T: Default + Send + Sync + 'static>(
-        &mut self,
-    ) -> Result<AtomicRefMut<T>, EcsError> {
+    pub fn get_mut_or_default<T: Default + Send + Sync + 'static>(&mut self) -> AtomicRefMut<T> {
         self.initialize::<T>();
-        self.get_mut()
+        self.get_mut().unwrap()
     }
 
     /// Get a mutable reference to a resource by its type id. Useful if using
