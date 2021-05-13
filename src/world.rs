@@ -7,7 +7,8 @@ use crate::*;
 /// - The same type cannot be borrowed mutably more than once at the same time.
 #[derive(Default)]
 pub struct World {
-    pub(crate) res: HashMap<TypeId, AtomicRefCell<Box<dyn Resource>>, BuildHasherDefault<TypeIdHasher>>,
+    pub(crate) res:
+        HashMap<TypeId, AtomicRefCell<Box<dyn Resource>>, BuildHasherDefault<TypeIdHasher>>,
 }
 
 impl World {
@@ -18,8 +19,10 @@ impl World {
     /// the resources and initialize all of them.
     pub fn initialize<T: Default + Send + Sync + 'static>(&mut self) {
         if !self.res.contains_key(&TypeId::of::<T>()) {
-            self.res
-                .insert(TypeId::of::<T>(), AtomicRefCell::new(Box::new(T::default())));
+            self.res.insert(
+                TypeId::of::<T>(),
+                AtomicRefCell::new(Box::new(T::default())),
+            );
         }
     }
     /// Get an immutable reference to a resource by type.
@@ -45,6 +48,14 @@ impl World {
             .and_then(|i| i.try_borrow_mut().map_err(|_| EcsError::AlreadyBorrowed))
             .and_then(|i| Ok(AtomicRefMut::map(i, |j| j.downcast_mut::<T>().unwrap())))
     }
+
+    /// Get a mutable reference to a resource by type, default-initializing it if not already
+    /// initialized.
+    pub fn get_mut_or_default<T: Default + Send + Sync + 'static>(&mut self) -> AtomicRefMut<T> {
+        self.initialize::<T>();
+        self.get_mut().unwrap()
+    }
+
     /// Get a mutable reference to a resource by its type id. Useful if using
     /// dynamic dispatching.
     /// Will return an error if the type is:
@@ -52,7 +63,10 @@ impl World {
     /// - Already borrowed immutably
     /// - Already borrowed mutably
     #[doc(hidden)]
-    pub fn get_by_typeid(&self, typeid: &TypeId) -> Result<AtomicRefMut<Box<dyn Resource>>, EcsError> {
+    pub fn get_by_typeid(
+        &self,
+        typeid: &TypeId,
+    ) -> Result<AtomicRefMut<Box<dyn Resource>>, EcsError> {
         self.res
             .get(typeid)
             .ok_or(EcsError::NotInitialized)
@@ -90,5 +104,12 @@ mod tests {
         }
         assert_eq!(*world.get_mut::<u32>().unwrap(), 6);
     }
-}
 
+    #[test]
+    fn init_or_default() {
+        let mut world = World::default();
+
+        let mut data = world.get_mut_or_default::<u32>();
+        *data += 1;
+    }
+}
