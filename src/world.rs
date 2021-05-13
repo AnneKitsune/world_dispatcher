@@ -104,4 +104,12 @@ mod tests {
         }
         assert_eq!(*world.get_mut::<u32>().unwrap(), 6);
     }
+
+    #[test]
+    fn init_or_default() {
+        let mut world = World::default();
+
+        let mut data = world.get_mut_or_default::<u32>();
+        *data += 1;
+    }
 }
