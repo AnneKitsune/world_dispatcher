@@ -19,11 +19,25 @@ impl DispatcherBuilder {
         self.systems.push(into_system.system());
         self
     }
+
     /// Adds a `System` to the system pool.
     pub fn add_system(mut self, system: System) -> Self {
         self.systems.push(system);
         self
     }
+
+    /// Inserts a function implementing `IntoSystem` to the system pool.
+    pub fn insert<R, F: IntoSystem<R>>(&mut self, into_system: F) -> &mut Self {
+        self.systems.push(into_system.system());
+        self
+    }
+
+    /// Inserts a `System` to the system pool.
+    pub fn insert_system(&mut self, system: System) -> &mut Self {
+        self.systems.push(system);
+        self
+    }
+
     /// Builds a `Dispatcher` from the accumulated set of `System`.
     /// This preserves the order from the inserted systems.
     pub fn build(self, world: &mut World) -> Dispatcher {
@@ -43,7 +57,7 @@ impl DispatcherBuilder {
             }
             if let Err(_) = fetch {
                 panic!(
-                    "System cannot be borrowed at all. This means it 
+                    "System cannot be borrowed at all. This means it
                     uses the same resource twice in its signature."
                 );
             }
@@ -62,13 +76,23 @@ pub struct Dispatcher {
     stages: Vec<Vec<System>>,
 }
 impl Dispatcher {
+    /// Returns an iterator of all stages. This is not needed for regular use,
+    /// but can be useful for debugging or for implementing custom executors.
+    pub fn iter_stages(&self) -> impl Iterator<Item = &Vec<System>> {
+        self.stages.iter()
+    }
+
     /// Runs the systems one after the other, one at a time.
     pub fn run_seq(&mut self, world: &World) -> SystemResult {
         #[cfg(feature = "profiler")]
         profile_scope!("dispatcher_run_seq");
 
         for stage in &mut self.stages {
-            let errors = stage.iter_mut().map(|s| s.run(world)).flat_map(|r| r.err()).collect::<Vec<_>>();
+            let errors = stage
+                .iter_mut()
+                .map(|s| s.run(world))
+                .flat_map(|r| r.err())
+                .collect::<Vec<_>>();
             if errors.len() > 0 {
                 return Err(EcsError::DispatcherExecutionFailed(errors));
             }
@@ -85,7 +109,11 @@ impl Dispatcher {
         profile_scope!("dispatcher_run_par");
 
         for stage in &mut self.stages {
-            let errors = stage.par_iter_mut().map(|s| s.run(world)).flat_map(|r| r.err()).collect::<Vec<_>>();
+            let errors = stage
+                .par_iter_mut()
+                .map(|s| s.run(world))
+                .flat_map(|r| r.err())
+                .collect::<Vec<_>>();
             if errors.len() > 0 {
                 return Err(EcsError::DispatcherExecutionFailed(errors));
             }
@@ -112,6 +140,34 @@ mod tests {
         dispatch.run_seq(&world).unwrap();
         assert!(world.get::<A>().is_ok());
         assert!(world.get_mut::<A>().is_ok());
+    }
+
+    #[test]
+    #[wasm_bindgen_test]
+    fn simple_dispatcher_inserter() {
+        #[derive(Default, PartialEq, Eq)]
+        pub struct A(u32);
+        let mut world = World::default();
+        let sys = (|a: &mut A| {
+            a.0 += 1;
+            Ok(())
+        })
+        .system();
+
+        let mut builder = DispatcherBuilder::new();
+        builder.insert_system(sys);
+        builder.insert(|a: &mut A| {
+            a.0 += 1;
+            Ok(())
+        });
+
+        let mut dispatch = builder.build(&mut world);
+        dispatch.run_seq(&world).unwrap();
+        dispatch.run_seq(&world).unwrap();
+        dispatch.run_seq(&world).unwrap();
+        assert!(world.get::<A>().is_ok());
+        assert!(world.get_mut::<A>().is_ok());
+        assert_eq!(world.get::<A>().unwrap().0, 6);
     }
 
     #[test]
