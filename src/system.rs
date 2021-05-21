@@ -26,7 +26,7 @@ impl System {
     }
 
     /// Returns the underlying type name of the system. This is not guranteed to
-    /// be stable or human-readable, but can be used or diagnostics.
+    /// be stable or human-readable, but can be used for diagnostics.
     pub fn name(&self) -> &'static str {
         self.name
     }
