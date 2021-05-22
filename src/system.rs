@@ -8,6 +8,7 @@ pub struct System {
     pub(crate) lock:
         Box<dyn Fn(*const World, *mut Vec<Box<dyn RefLifetime>>) -> SystemResult + Send>,
     pub(crate) run_fn: Box<dyn FnMut(&World) -> SystemResult + Send>,
+    pub(crate) name: &'static str,
 }
 
 impl System {
@@ -22,6 +23,12 @@ impl System {
     /// Runs the system's function using the provided `World`'s resources.
     pub fn run(&mut self, world: &World) -> SystemResult {
         (self.run_fn)(world)
+    }
+
+    /// Returns the underlying type name of the system. This is not guranteed to
+    /// be stable or human-readable, but can be used for diagnostics.
+    pub fn name(&self) -> &'static str {
+        self.name
     }
 }
 
@@ -64,6 +71,7 @@ macro_rules! impl_system {
                     run_fn: Box::new(move |_world: &World| {
                         self($(&*_world.get::<$id>()?,)* $(&mut *_world.get_mut::<$idmut>()?),*)
                     }),
+                    name: std::any::type_name::<F>()
                 }
             }
         }
@@ -90,10 +98,10 @@ macro_rules! impl_systems {
 }
 
 impl_system!();
-#[cfg(not(feature="big_systems"))]
+#[cfg(not(feature = "big_systems"))]
 impl_systems!(A, B, C, D, E, G, H, I, J, K, L, M,);
 // Sometimes I just hate rust. This compiles *very* slowly.
-#[cfg(feature="big_systems")]
+#[cfg(feature = "big_systems")]
 // 16
 //impl_systems!(A, B, C, D, E, G, H, I, J, K, L, M, O, P, Q, R,);
 // 26, 17s build time
