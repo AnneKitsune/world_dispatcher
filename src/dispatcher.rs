@@ -7,7 +7,7 @@ use crate::*;
 #[derive(Default)]
 pub struct DispatcherBuilder {
     #[doc(hidden)]
-    /// The current systems in this builder. Hidden from docs to encourage use
+    /// The current systems in this builder. Hidden from docs to encourage using
     /// the API of the builder, but public to enable extension of the builder.
     pub systems: Vec<System>,
 }
