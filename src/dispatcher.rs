@@ -1,9 +1,15 @@
 use crate::*;
 
 /// A builder that accumulates systems to be inserted into a `Dispatcher`.
+///
+/// For more complex workflows, this builder can have new traits implemented for
+/// it, using the public `systems` member.
 #[derive(Default)]
 pub struct DispatcherBuilder {
-    systems: Vec<System>,
+    #[doc(hidden)]
+    /// The current systems in this builder. Hidden from docs to encourage using
+    /// the API of the builder, but public to enable extension of the builder.
+    pub systems: Vec<System>,
 }
 
 impl DispatcherBuilder {
@@ -62,13 +68,23 @@ pub struct Dispatcher {
     stages: Vec<Vec<System>>,
 }
 impl Dispatcher {
+    /// Returns an iterator of all stages. This is not needed for regular use,
+    /// but can be useful for debugging or for implementing custom executors.
+    pub fn iter_stages(&self) -> impl Iterator<Item = &Vec<System>> {
+        self.stages.iter()
+    }
+
     /// Runs the systems one after the other, one at a time.
     pub fn run_seq(&mut self, world: &World) -> SystemResult {
         #[cfg(feature = "profiler")]
         profile_scope!("dispatcher_run_seq");
 
         for stage in &mut self.stages {
-            let errors = stage.iter_mut().map(|s| s.run(world)).flat_map(|r| r.err()).collect::<Vec<_>>();
+            let errors = stage
+                .iter_mut()
+                .map(|s| s.run(world))
+                .flat_map(|r| r.err())
+                .collect::<Vec<_>>();
             if errors.len() > 0 {
                 return Err(EcsError::DispatcherExecutionFailed(errors));
             }
@@ -85,7 +101,11 @@ impl Dispatcher {
         profile_scope!("dispatcher_run_par");
 
         for stage in &mut self.stages {
-            let errors = stage.par_iter_mut().map(|s| s.run(world)).flat_map(|r| r.err()).collect::<Vec<_>>();
+            let errors = stage
+                .par_iter_mut()
+                .map(|s| s.run(world))
+                .flat_map(|r| r.err())
+                .collect::<Vec<_>>();
             if errors.len() > 0 {
                 return Err(EcsError::DispatcherExecutionFailed(errors));
             }
