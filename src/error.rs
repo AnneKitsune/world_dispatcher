@@ -22,7 +22,7 @@ pub enum EcsError {
     DispatcherExecutionFailed(Vec<EcsError>),
     /// This variant is for user-defined errors.
     /// To create an error of this type easily, use the `system_error!` macro.
-    SystemError(Box<dyn Error+Send>),
+    SystemError(Box<dyn Error + Send>),
 }
 
 /// The result of a `System`'s execution.

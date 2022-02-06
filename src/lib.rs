@@ -3,9 +3,9 @@
 //! - Resources MAY use Mutex<Arc<T>> to be Send+Sync
 //! - Resources MUST be 'static
 
+use atomic_refcell_try::*;
 use downcast_rs::{impl_downcast, Downcast};
 use std::any::TypeId;
-use atomic_refcell_try::*;
 use std::collections::HashMap;
 use std::error::Error;
 use std::hash::{BuildHasherDefault, Hasher};
