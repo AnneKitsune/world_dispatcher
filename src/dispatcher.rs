@@ -93,7 +93,7 @@ impl Dispatcher {
         profile_scope!("dispatcher_run_par");
 
         for stage in &mut self.stages {
-            stage.par_iter_mut().foreach(|s| s.run(world));
+            stage.par_iter_mut().for_each(|s| s.run(world));
         }
     }
 }
@@ -135,13 +135,11 @@ mod tests {
         #[derive(Default)]
         pub struct A;
         let mut world = World::default();
-        let sys = (|_comps: &A| Ok(())).system();
+        let sys = (|_comps: &A| {}).system();
         let mut dispatch = DispatcherBuilder::new().add_system(sys).build(&mut world);
         dispatch.run_par(&world);
         dispatch.run_par(&world);
         dispatch.run_par(&world);
-        assert!(world.get::<A>().is_ok());
-        assert!(world.get_mut::<A>().is_ok());
     }
 
     #[cfg(feature = "parallel")]

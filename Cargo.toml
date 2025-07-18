@@ -10,11 +10,13 @@ license = "AGPL-3.0-or-later"
 exclude = ["doc"]
 repository = "https://github.com/AnneKitsune/world_dispatcher/"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [features]
 profiler = ["thread_profiler", "thread_profiler/thread_profiler"]
+# Enables the parallel dispatcher.
 parallel = ["rayon"]
+# Enables conversion of bigger systems.
+# Without `big_systems`, we can have up to 12 resources in a system.
+# With `big_systems`, we can have up to 22 resources in a system.
 big_systems = []
 
 [dependencies]
