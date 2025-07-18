@@ -1,9 +1,6 @@
-#![feature(test)]
-
-extern crate test;
+use criterion::{Criterion, criterion_group, criterion_main};
+use std::hint::black_box;
 use world_dispatcher::*;
-
-use test::Bencher;
 
 #[derive(Default)]
 struct A;
@@ -25,21 +22,23 @@ fn init_world() -> World {
     world
 }
 
-#[bench]
-fn build_dispatcher(b: &mut Bencher) {
+fn build_dispatcher(c: &mut Criterion) {
     let mut world = init_world();
-    b.iter(|| {
-        let _ = DispatcherBuilder::new()
-            .add(sys1)
-            .add(sys2)
-            .add(sys3)
-            .add(sys4)
-            .build(&mut world);
+    c.bench_function("dispatcher_build", |b| {
+        b.iter(|| {
+            black_box(
+                DispatcherBuilder::new()
+                    .add(sys1)
+                    .add(sys2)
+                    .add(sys3)
+                    .add(sys4)
+                    .build(&mut world),
+            );
+        })
     });
 }
 
-#[bench]
-fn run_dispatcher(b: &mut Bencher) {
+fn run_dispatcher(c: &mut Criterion) {
     let mut world = init_world();
     let mut dispatch = DispatcherBuilder::new()
         .add(sys1)
@@ -47,7 +46,13 @@ fn run_dispatcher(b: &mut Bencher) {
         .add(sys3)
         .add(sys4)
         .build(&mut world);
-    b.iter(|| {
-        dispatch.run_seq(&world);
+
+    c.bench_function("dispatcher_run", |b| {
+        b.iter(|| {
+            black_box(dispatch.run_seq(&world));
+        })
     });
 }
+
+criterion_group!(benches, build_dispatcher, run_dispatcher);
+criterion_main!(benches);

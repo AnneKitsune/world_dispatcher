@@ -31,3 +31,30 @@
 
 # 2025-06-03 14:59:02.998647
 +N
+
+# 2025-07-18 17:00:31.261000
++/add Cargo.toml
+
+# 2025-07-18 17:00:37.055150
++/add benches/*
+
+# 2025-07-18 17:01:30.756176
++Add criterion to Cargo.toml and update the benchmarks to use criterion rather than the unstable built-in benchmark utility. The Latest version of criterion available is 0.6.0.
+
+# 2025-07-18 17:03:01.965873
++/run cargo bench
+
+# 2025-07-18 17:03:01.965925
++/run cargo bench
+
+# 2025-07-18 17:03:17.879007
++No benches were ran. find the issue and fix it.
+
+# 2025-07-18 17:05:29.232918
++/run cargo bench
+
+# 2025-07-18 17:05:29.232973
++/run cargo bench
+
+# 2025-07-18 17:07:01.721022
++N

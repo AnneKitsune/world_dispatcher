@@ -1,9 +1,6 @@
-#![feature(test)]
-
-extern crate test;
+use criterion::{Criterion, criterion_group, criterion_main};
+use std::hint::black_box;
 use world_dispatcher::*;
-
-use test::Bencher;
 
 #[derive(Default)]
 struct A;
@@ -24,36 +21,51 @@ fn big(
 ) {
 }
 
-#[bench]
-fn convert_system_fn_small(b: &mut Bencher) {
-    b.iter(|| {
-        let _ = smol.system();
+fn convert_system_fn_small(c: &mut Criterion) {
+    c.bench_function("convert_system_fn_small", |b| {
+        b.iter(|| {
+            black_box(smol.system());
+        })
     });
 }
 
-#[bench]
-fn convert_system_fn_big(b: &mut Bencher) {
-    b.iter(|| {
-        let _ = big.system();
+fn convert_system_fn_big(c: &mut Criterion) {
+    c.bench_function("convert_system_fn_big", |b| {
+        b.iter(|| {
+            black_box(big.system());
+        })
     });
 }
 
-#[bench]
-fn system_run_big(b: &mut Bencher) {
+fn system_run_big(c: &mut Criterion) {
     let mut world = World::default();
     let mut sys = big.system();
     sys.initialize(&mut world);
-    b.iter(|| {
-        sys.run(&world);
+
+    c.bench_function("system_run_big", |b| {
+        b.iter(|| {
+            black_box(sys.run(&world));
+        })
     });
 }
 
-#[bench]
-fn system_run_small(b: &mut Bencher) {
+fn system_run_small(c: &mut Criterion) {
     let mut world = World::default();
     let mut sys = smol.system();
     sys.initialize(&mut world);
-    b.iter(|| {
-        sys.run(&world);
+
+    c.bench_function("system_run_small", |b| {
+        b.iter(|| {
+            black_box(sys.run(&world));
+        })
     });
 }
+
+criterion_group!(
+    benches,
+    convert_system_fn_small,
+    convert_system_fn_big,
+    system_run_big,
+    system_run_small
+);
+criterion_main!(benches);

@@ -25,3 +25,21 @@ rayon = { version = "1.4.0", optional = true }
 thread_profiler = { version = "0.3.0", optional = true }
 atomic_refcell_try = "0.2.0"
 
+[dev-dependencies]
+criterion = "0.6.0"
+
+[[bench]]
+name = "dispatcher"
+path = "benches/dispatcher.rs"
+harness = false
+
+[[bench]]
+name = "system"
+path = "benches/system.rs"
+harness = false
+
+[[bench]]
+name = "world"
+path = "benches/world.rs"
+harness = false
+

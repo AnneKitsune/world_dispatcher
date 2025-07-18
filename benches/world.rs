@@ -1,25 +1,31 @@
-extern crate test;
+use criterion::{Criterion, criterion_group, criterion_main};
+use std::hint::black_box;
 use world_dispatcher::*;
 
-use test::Bencher;
-
-#[bench]
-fn world_access(b: &mut Bencher) {
+fn world_access(c: &mut Criterion) {
     #[derive(Default)]
-    struct A(f32);
+    struct A;
     let mut world = World::default();
     world.initialize::<A>();
-    b.iter(|| {
-        world.get_mut::<A>();
+
+    c.bench_function("world_access", |b| {
+        b.iter(|| {
+            black_box(world.get_mut::<A>());
+        })
     });
 }
 
-#[bench]
-fn world_create_init(b: &mut Bencher) {
+fn world_create_init(c: &mut Criterion) {
     #[derive(Default)]
-    struct A(f32);
-    b.iter(|| {
-        let mut world = World::default();
-        world.initialize::<A>();
+    struct A;
+    c.bench_function("world_create_init", |b| {
+        b.iter(|| {
+            let mut world = World::default();
+            world.initialize::<A>();
+            black_box(world);
+        })
     });
 }
+
+criterion_group!(benches, world_access, world_create_init);
+criterion_main!(benches);
