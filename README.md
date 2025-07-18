@@ -32,14 +32,12 @@ fn main() {
 
     let mut world = World::default();
 
-    let sys = (|_comps: &A| Ok(())).system();
+    let sys = (|_comps: &A| {}).system();
 
     let mut dispatch = DispatcherBuilder::new().add_system(sys).build(&mut world);
-    dispatch.run_seq(&world).unwrap();
-    dispatch.run_seq(&world).unwrap();
-    dispatch.run_seq(&world).unwrap();
-
-    assert!(world.get::<A>().is_ok());
+    dispatch.run_seq(&world);
+    dispatch.run_seq(&world);
+    dispatch.run_seq(&world);
 }
 ```
 
@@ -71,13 +69,13 @@ fn main() {
     // Will automatically create A, B, C, Option<D>::None inside of world.
     let mut dispatch = DispatcherBuilder::new().add(system_function).build(&mut world);
     // Let's assign a value to D.
-    *world.get_mut::<Option<D>>().unwrap() = Some(D);
+    *world.get_mut::<Option<D>>() = Some(D);
 
-    dispatch.run_seq(&world).unwrap();
-    dispatch.run_seq(&world).unwrap();
-    dispatch.run_seq(&world).unwrap();
+    dispatch.run_seq(&world);
+    dispatch.run_seq(&world);
+    dispatch.run_seq(&world);
 
-    assert!(world.get::<Option<D>>().unwrap().is_some());
+    assert!(world.get::<Option<D>>().is_some());
 }
 ```
 
@@ -87,8 +85,8 @@ seconds if using it. Following compilations will be instant.
 
 ### Maintainer Information
 
-* Maintainer: Jojolepro
-* Contact: jojolepro [at] jojolepro [dot] com
-* Website: [jojolepro.com](https://jojolepro.com)
-* Patreon: [patreon](https://patreon.com/jojolepro)
+* Maintainer: Anne Kitsune
+* Contact: annekitsunefox [at] gmail [dot] com
+* Website: [annekitsune.com](https://annekitsune.com)
+* Patreon: [patreon](https://patreon.com/annekitsune)
 
