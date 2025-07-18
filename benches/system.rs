@@ -7,9 +7,7 @@ use test::Bencher;
 
 #[derive(Default)]
 struct A;
-fn smol() -> SystemResult {
-    Ok(())
-}
+fn smol() {}
 fn big(
     _a: &A,
     _b: &A,
@@ -23,8 +21,7 @@ fn big(
     _j: &A,
     _k: &A,
     _l: &A,
-) -> SystemResult {
-    Ok(())
+) {
 }
 
 #[bench]
@@ -47,7 +44,7 @@ fn system_run_big(b: &mut Bencher) {
     let mut sys = big.system();
     sys.initialize(&mut world);
     b.iter(|| {
-        sys.run(&world).unwrap();
+        sys.run(&world);
     });
 }
 
@@ -57,6 +54,6 @@ fn system_run_small(b: &mut Bencher) {
     let mut sys = smol.system();
     sys.initialize(&mut world);
     b.iter(|| {
-        sys.run(&world).unwrap();
+        sys.run(&world);
     });
 }

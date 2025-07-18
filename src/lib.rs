@@ -4,10 +4,9 @@
 //! - Resources MUST be 'static
 
 use atomic_refcell_try::*;
-use downcast_rs::{impl_downcast, Downcast};
+use downcast_rs::{Downcast, impl_downcast};
 use std::any::TypeId;
 use std::collections::HashMap;
-use std::error::Error;
 use std::hash::{BuildHasherDefault, Hasher};
 
 #[cfg(feature = "parallel")]
@@ -16,14 +15,12 @@ use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
 use thread_profiler::profile_scope;
 
 mod dispatcher;
-mod error;
 mod resource;
 mod system;
 mod typeid;
 mod world;
 
 pub use self::dispatcher::*;
-pub use self::error::*;
 pub use self::resource::*;
 pub use self::system::*;
 use self::typeid::*;

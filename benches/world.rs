@@ -1,5 +1,3 @@
-#![feature(test)]
-
 extern crate test;
 use world_dispatcher::*;
 
@@ -12,7 +10,7 @@ fn world_access(b: &mut Bencher) {
     let mut world = World::default();
     world.initialize::<A>();
     b.iter(|| {
-        world.get_mut::<A>().unwrap();
+        world.get_mut::<A>();
     });
 }
 

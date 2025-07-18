@@ -29,23 +29,50 @@ impl World {
     /// Will return an error if the type is:
     /// - Non initialized
     /// - Already borrowed mutably
-    pub fn get<T: Send + Sync + 'static>(&self) -> Result<AtomicRef<T>, EcsError> {
+    pub fn get<T: Send + Sync + 'static>(&self) -> AtomicRef<T> {
+        let i = self
+            .res
+            .get(&TypeId::of::<T>())
+            .expect(&format!(
+                "Trying to world::get a resource that is not initialized. Type: {}",
+                std::any::type_name::<T>()
+            ))
+            .try_borrow()
+            .expect("Trying to world::get_by_typeid a resource that was not initialized.");
+        AtomicRef::map(i, |j| j.downcast_ref::<T>().unwrap())
+    }
+
+    pub(crate) fn try_get<T: Send + Sync + 'static>(&self) -> Result<AtomicRef<T>, ()> {
         self.res
             .get(&TypeId::of::<T>())
-            .ok_or(EcsError::NotInitialized)
-            .and_then(|i| i.try_borrow().map_err(|_| EcsError::AlreadyBorrowed))
+            .ok_or(())
+            .and_then(|i| i.try_borrow().map_err(|_| ()))
             .and_then(|i| Ok(AtomicRef::map(i, |j| j.downcast_ref::<T>().unwrap())))
     }
+
     /// Get a mutable reference to a resource by type.
     /// Will return an error if the type is:
     /// - Non initialized
     /// - Already borrowed immutably
     /// - Already borrowed mutably
-    pub fn get_mut<T: Send + Sync + 'static>(&self) -> Result<AtomicRefMut<T>, EcsError> {
+    pub fn get_mut<T: Send + Sync + 'static>(&self) -> AtomicRefMut<T> {
+        let i = self
+            .res
+            .get(&TypeId::of::<T>())
+            .expect(&format!(
+                "Trying to world::get_mut a resource that is not initialized. Type: {}",
+                std::any::type_name::<T>()
+            ))
+            .try_borrow_mut()
+            .expect("Trying to world::get_by_typeid a resource that was not initialized.");
+        AtomicRefMut::map(i, |j| j.downcast_mut::<T>().unwrap())
+    }
+
+    pub(crate) fn try_get_mut<T: Send + Sync + 'static>(&self) -> Result<AtomicRefMut<T>, ()> {
         self.res
             .get(&TypeId::of::<T>())
-            .ok_or(EcsError::NotInitialized)
-            .and_then(|i| i.try_borrow_mut().map_err(|_| EcsError::AlreadyBorrowed))
+            .ok_or(())
+            .and_then(|i| i.try_borrow_mut().map_err(|_| ()))
             .and_then(|i| Ok(AtomicRefMut::map(i, |j| j.downcast_mut::<T>().unwrap())))
     }
 
@@ -53,7 +80,7 @@ impl World {
     /// initialized.
     pub fn get_mut_or_default<T: Default + Send + Sync + 'static>(&mut self) -> AtomicRefMut<T> {
         self.initialize::<T>();
-        self.get_mut().unwrap()
+        self.get_mut()
     }
 
     /// Get a mutable reference to a resource by its type id. Useful if using
@@ -63,14 +90,12 @@ impl World {
     /// - Already borrowed immutably
     /// - Already borrowed mutably
     #[doc(hidden)]
-    pub fn get_by_typeid(
-        &self,
-        typeid: &TypeId,
-    ) -> Result<AtomicRefMut<Box<dyn Resource>>, EcsError> {
+    pub fn get_by_typeid(&self, typeid: &TypeId) -> AtomicRefMut<Box<dyn Resource>> {
         self.res
             .get(typeid)
-            .ok_or(EcsError::NotInitialized)
-            .and_then(|i| i.try_borrow_mut().map_err(|_| EcsError::AlreadyBorrowed))
+            .expect("Trying to world::get_by_typeid a resource that was not initialized.")
+            .try_borrow_mut()
+            .expect("Tried to borrow a resource that was already borrowed and is still in use!")
     }
 }
 
@@ -81,28 +106,24 @@ mod tests {
     fn init_borrow() {
         let mut world = World::default();
         world.initialize::<u32>();
-        *world.get_mut::<u32>().unwrap() = 5;
-        *world.get_mut::<u32>().unwrap() = 6;
+        *world.get_mut::<u32>() = 5;
+        *world.get_mut::<u32>() = 6;
         {
-            let _long_borrow = world.get::<u32>().unwrap();
-            let _long_borrow2 = world.get::<u32>().unwrap();
-            let failing_borrow = world.get_mut::<u32>();
-            if let EcsError::AlreadyBorrowed = failing_borrow.err().unwrap() {
-                // good
-            } else {
-                unreachable!();
+            let _long_borrow = world.get::<u32>();
+            let _long_borrow2 = world.get::<u32>();
+            let failing_borrow = world.try_get_mut::<u32>();
+            if !failing_borrow.is_err() {
+                panic!();
             }
         }
         {
-            let _long_borrow = world.get_mut::<u32>().unwrap();
-            let failing_borrow = world.get::<u32>();
-            if let EcsError::AlreadyBorrowed = failing_borrow.err().unwrap() {
-                // good
-            } else {
-                unreachable!();
+            let _long_borrow = world.get_mut::<u32>();
+            let failing_borrow = world.try_get::<u32>();
+            if !failing_borrow.is_err() {
+                panic!();
             }
         }
-        assert_eq!(*world.get_mut::<u32>().unwrap(), 6);
+        assert_eq!(*world.get_mut::<u32>(), 6);
     }
 
     #[test]

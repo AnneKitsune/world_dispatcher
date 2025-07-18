@@ -45,9 +45,8 @@ fn main() {
 
 It is also possible to convert most functions into systems.
 
-There are five requirements for this:
+There are four requirements for this:
 - Take only & and &mut references as arguments
-- Return a SystemResult
 - Use all & references before all &mut references in the arguments.
 - Do not use the same type twice in the arguments.
 - All types in the arguments must implement `Default`. If they don't, use
@@ -63,9 +62,8 @@ pub struct B;
 pub struct C;
 pub struct D;
 
-fn system_function(_a: &A, _b: &B, _c: &mut C, d: &mut Option<D>) -> SystemResult {
+fn system_function(_a: &A, _b: &B, _c: &mut C, d: &mut Option<D>) {
     assert!(d.is_some());
-    Ok(())
 }
 
 fn main() {

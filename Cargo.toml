@@ -1,14 +1,14 @@
 [package]
 name = "world_dispatcher"
-version = "1.2.0"
-authors = ["Joël Lupien (Jojolepro) <jojolepro@jojolepro.com>"]
-edition = "2018"
+version = "2.0.0"
+authors = ["Anne Kitsune <annekitsunefox@gmail.com>"]
+edition = "2024"
 description = "Provides the System part of a full ECS, along with a fast dispatcher and world container."
-keywords = ["game", "ecs"]
+keywords = ["game", "game-engines", "ecs"]
 categories = ["game-engines"]
-license = "Apache-2.0"
+license = "AGPL-3.0-or-later"
 exclude = ["doc"]
-repository = "https://github.com/jojolepro/world_dispatcher/"
+repository = "https://github.com/AnneKitsune/world_dispatcher/"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -23,5 +23,3 @@ rayon = { version = "1.4.0", optional = true }
 thread_profiler = { version = "0.3.0", optional = true }
 atomic_refcell_try = "0.2.0"
 
-[dev-dependencies]
-wasm-bindgen-test = "0.3"

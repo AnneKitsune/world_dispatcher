@@ -5,9 +5,8 @@ use crate::*;
 /// execution sequence.
 pub struct System {
     pub(crate) initialize: Box<dyn Fn(&mut World) + Send>,
-    pub(crate) lock:
-        Box<dyn Fn(*const World, *mut Vec<Box<dyn RefLifetime>>) -> SystemResult + Send>,
-    pub(crate) run_fn: Box<dyn FnMut(&World) -> SystemResult + Send>,
+    pub(crate) lock: Box<dyn Fn(*const World, *mut Vec<Box<dyn RefLifetime>>) -> bool + Send>,
+    pub(crate) run_fn: Box<dyn FnMut(&World) + Send>,
     pub(crate) name: &'static str,
 }
 
@@ -21,7 +20,7 @@ impl System {
         (self.initialize)(world)
     }
     /// Runs the system's function using the provided `World`'s resources.
-    pub fn run(&mut self, world: &World) -> SystemResult {
+    pub fn run(&mut self, world: &World) {
         (self.run_fn)(world)
     }
 
@@ -41,7 +40,6 @@ impl System {
 /// - All immutable references are placed *before* all mutable references.
 /// - All arguments implement `Default`.
 /// - Does not use the same type twice.
-/// - Returns a `SystemResult` (usually just `Ok(())`).
 pub trait IntoSystem<R> {
     fn system(self) -> System;
 }
@@ -52,7 +50,7 @@ macro_rules! impl_system {
         where
             $($id: Default+'static,)*
             $($idmut: Default+'static,)*
-            F: Fn($(&$id,)* $(&mut $idmut,)*) -> SystemResult + 'static + Send,
+            F: Fn($(&$id,)* $(&mut $idmut,)*) + 'static + Send,
         {
             fn system(self) -> System {
                 System {
@@ -64,12 +62,26 @@ macro_rules! impl_system {
                         // Unsafe: used to extend the lifetime because we need to store the
                         // reference of a value that is inside a RefCell to keep the counter
                         // incremented.
-                        $(unsafe {(&mut *_locked).push(Box::new((*_world).get::<$id>()?))};)*
-                        $(unsafe {(&mut *_locked).push(Box::new((*_world).get_mut::<$idmut>()?))};)*
-                        Ok(())
+                        $(unsafe {
+                            (&mut *_locked).push(Box::new(
+                                match (*_world).try_get::<$id>() {
+                                    Ok(comp) => comp,
+                                    Err(_) => return false,
+                                }
+                            ))
+                        })*
+                        $(unsafe {
+                            (&mut *_locked).push(Box::new(
+                                match (*_world).try_get_mut::<$idmut>() {
+                                    Ok(comp) => comp,
+                                    Err(_) => return false,
+                                }
+                            ))
+                        })*
+                        return true;
                     }),
                     run_fn: Box::new(move |_world: &World| {
-                        self($(&*_world.get::<$id>()?,)* $(&mut *_world.get_mut::<$idmut>()?),*)
+                        self($(&*_world.get::<$id>(),)* $(&mut *_world.get_mut::<$idmut>()),*)
                     }),
                     name: std::any::type_name::<F>()
                 }
@@ -107,20 +119,18 @@ impl_systems!(A, B, C, D, E, G, H, I, J, K, L, M,);
 // 26, 17s build time
 //impl_systems!(A, B, C, D, E, G, H, I, J, K, L, M, O, P, Q, R, S, T, U, V, W, X, Y, Z, AA,);
 // 22, 10s build time
-impl_systems!(A, B, C, D, E, G, H, I, J, K, L, M, O, P, Q, R, S, T, U, V, W,);
+impl_systems!(
+    A, B, C, D, E, G, H, I, J, K, L, M, O, P, Q, R, S, T, U, V, W,
+);
 
 #[cfg(test)]
 mod tests {
     use crate::*;
-    use wasm_bindgen_test::*;
 
     #[test]
-    #[wasm_bindgen_test]
     fn convert_system() {
         let _ = generic::<u32>.system();
-        fn tmp(_var1: &u32, _var2: &u64, _var3: &mut i32, _var4: &mut i64) -> SystemResult {
-            Ok(())
-        }
+        fn tmp(_var1: &u32, _var2: &u64, _var3: &mut i32, _var4: &mut i64) {}
         // Technically reusing the same type is incorrect and causes a runtime panic.
         // However, there doesn't seem to be a clean way to handle type inequality in generics.
         fn tmp2(
@@ -136,46 +146,37 @@ mod tests {
             _var10: &mut i64,
             _var11: &mut i64,
             _var12: &mut i64,
-        ) -> SystemResult {
-            Ok(())
+        ) {
         }
         let _ = tmp.system();
         let _ = tmp2.system();
     }
 
     #[test]
-    #[wasm_bindgen_test]
     fn system_is_send() {
         let x = 6;
         send(
             (move |_var1: &u32| {
                 let _y = x;
-                Ok(())
             })
             .system(),
         );
-        send((|| Ok(())).system());
+        send((|| {}).system());
         send(sys.system());
     }
 
-    fn sys(_var1: &u32) -> SystemResult {
-        Ok(())
-    }
-    fn generic<T>(_t: &T) -> SystemResult {
-        Ok(())
-    }
+    fn sys(_var1: &u32) {}
+    fn generic<T>(_t: &T) {}
     fn send<T: Send>(_t: T) {}
 
     #[test]
-    #[wasm_bindgen_test]
     fn manual_system_run() {
         let mut world = World::default();
         world.initialize::<u32>();
-        generic::<u32>.system().run(&world).unwrap();
+        generic::<u32>.system().run(&world);
     }
 
     #[test]
-    #[wasm_bindgen_test]
     fn system_replace_resource() {
         #[derive(Default)]
         pub struct A;
@@ -187,11 +188,10 @@ mod tests {
         let mut my_system = (|_a: &A, b: &mut B| {
             let b2 = B { x: 45 };
             *b = b2;
-            Ok(())
         })
         .system();
         my_system.initialize(&mut world);
-        my_system.run(&world).unwrap();
-        assert_eq!(world.get::<B>().unwrap().x, 45);
+        my_system.run(&world);
+        assert_eq!(world.get::<B>().x, 45);
     }
 }

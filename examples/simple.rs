@@ -5,12 +5,10 @@ fn main() {
 
     let mut world = World::default();
 
-    let sys = (|_comps: &A| Ok(())).system();
+    let sys = (|_comps: &A| {}).system();
 
     let mut dispatch = DispatcherBuilder::new().add_system(sys).build(&mut world);
-    dispatch.run_seq(&world).unwrap();
-    dispatch.run_seq(&world).unwrap();
-    dispatch.run_seq(&world).unwrap();
-
-    assert!(world.get::<A>().is_ok());
+    dispatch.run_seq(&world);
+    dispatch.run_seq(&world);
+    dispatch.run_seq(&world);
 }

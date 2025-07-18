@@ -1,0 +1,33 @@
+
+# 2025-06-03 14:44:07.871174
++/read src/*
+
+# 2025-06-03 14:44:12.778085
++/add lessons.txt
+
+# 2025-06-03 14:45:18.207403
++/add Cargo.toml
+
+# 2025-06-03 14:45:28.731947
++/rm  Cargo.toml
+
+# 2025-06-03 14:45:33.020849
++/drop
+
+# 2025-06-03 14:45:39.841013
++/read src/*
+
+# 2025-06-03 14:45:42.781093
++/read Cargo.toml
+
+# 2025-06-03 14:45:46.815139
++/read README.md
+
+# 2025-06-03 14:45:50.145066
++/add lessons.txt
+
+# 2025-06-03 14:45:55.700416
++I want you to analyze the code and documentation given to you. Analyze my coding style and write down instructions for an AI to replicate my style. Also think about any lessons from this code you can learn and write them down. Write both the style and lessons in lessons.txt
+
+# 2025-06-03 14:59:02.998647
++N

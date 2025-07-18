@@ -8,9 +8,8 @@ pub struct B;
 pub struct C;
 pub struct D;
 
-fn system_function(_a: &A, _b: &B, _c: &mut C, d: &mut Option<D>) -> SystemResult {
+fn system_function(_a: &A, _b: &B, _c: &mut C, d: &mut Option<D>) {
     assert!(d.is_some());
-    Ok(())
 }
 
 fn main() {
@@ -20,11 +19,9 @@ fn main() {
         .add(system_function)
         .build(&mut world);
     // Let's assign a value to D.
-    *world.get_mut::<Option<D>>().unwrap() = Some(D);
+    *world.get_mut::<Option<D>>() = Some(D);
 
-    dispatch.run_seq(&world).unwrap();
-    dispatch.run_seq(&world).unwrap();
-    dispatch.run_seq(&world).unwrap();
-
-    assert!(world.get::<Option<D>>().unwrap().is_some());
+    dispatch.run_seq(&world);
+    dispatch.run_seq(&world);
+    dispatch.run_seq(&world);
 }

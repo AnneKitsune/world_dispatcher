@@ -41,13 +41,13 @@ impl DispatcherBuilder {
         let mut locks = vec![];
         for sys in self.systems {
             let mut fetch = (sys.lock)(world, &mut locks);
-            if let Err(_) = fetch {
+            if !fetch {
                 stages.push(stage);
                 stage = vec![];
                 locks.clear();
                 fetch = (sys.lock)(world, &mut locks);
             }
-            if let Err(_) = fetch {
+            if !fetch {
                 panic!(
                     "System cannot be borrowed at all. This means it 
                     uses the same resource twice in its signature."
@@ -75,104 +75,77 @@ impl Dispatcher {
     }
 
     /// Runs the systems one after the other, one at a time.
-    pub fn run_seq(&mut self, world: &World) -> SystemResult {
+    pub fn run_seq(&mut self, world: &World) {
         #[cfg(feature = "profiler")]
         profile_scope!("dispatcher_run_seq");
 
         for stage in &mut self.stages {
-            let errors = stage
-                .iter_mut()
-                .map(|s| s.run(world))
-                .flat_map(|r| r.err())
-                .collect::<Vec<_>>();
-            if errors.len() > 0 {
-                return Err(EcsError::DispatcherExecutionFailed(errors));
-            }
+            stage.iter_mut().for_each(|s| s.run(world));
         }
-        Ok(())
     }
     /// Runs the systems in parallel. Systems having conflicts in their
     /// dependencies (the resource reference they use are the same and at least
     /// one is mutable) are run sequentially relative to each other, while
     /// systems without conflict run in parallel.
     #[cfg(feature = "parallel")]
-    pub fn run_par(&mut self, world: &World) -> SystemResult {
+    pub fn run_par(&mut self, world: &World) {
         #[cfg(feature = "profiler")]
         profile_scope!("dispatcher_run_par");
 
         for stage in &mut self.stages {
-            let errors = stage
-                .par_iter_mut()
-                .map(|s| s.run(world))
-                .flat_map(|r| r.err())
-                .collect::<Vec<_>>();
-            if errors.len() > 0 {
-                return Err(EcsError::DispatcherExecutionFailed(errors));
-            }
+            stage.par_iter_mut().foreach(|s| s.run(world));
         }
-        Ok(())
     }
 }
 
 #[cfg(test)]
 mod tests {
     use crate::*;
-    use wasm_bindgen_test::*;
 
     #[test]
-    #[wasm_bindgen_test]
     fn simple_dispatcher() {
         #[derive(Default)]
         pub struct A;
         let mut world = World::default();
-        let sys = (|_comps: &A| Ok(())).system();
+        let sys = (|_comps: &A| {}).system();
         let mut dispatch = DispatcherBuilder::new().add_system(sys).build(&mut world);
-        dispatch.run_seq(&world).unwrap();
-        dispatch.run_seq(&world).unwrap();
-        dispatch.run_seq(&world).unwrap();
-        assert!(world.get::<A>().is_ok());
-        assert!(world.get_mut::<A>().is_ok());
+        dispatch.run_seq(&world);
+        dispatch.run_seq(&world);
+        dispatch.run_seq(&world);
     }
 
     #[test]
-    #[wasm_bindgen_test]
     fn generic_simple_dispatcher() {
         #[derive(Default)]
         pub struct A;
         let mut world = World::default();
-        fn sys<T>(_t: &T) -> SystemResult {
-            Ok(())
-        }
+        fn sys<T>(_t: &T) {}
         let mut dispatch = DispatcherBuilder::new()
             .add(sys::<A>)
             .add_system(sys::<A>.system())
             .build(&mut world);
-        dispatch.run_seq(&world).unwrap();
-        dispatch.run_seq(&world).unwrap();
-        dispatch.run_seq(&world).unwrap();
-        assert!(world.get::<A>().is_ok());
-        assert!(world.get_mut::<A>().is_ok());
+        dispatch.run_seq(&world);
+        dispatch.run_seq(&world);
+        dispatch.run_seq(&world);
     }
 
     #[cfg(feature = "parallel")]
     #[test]
-    #[wasm_bindgen_test]
     fn par_distpach() {
         #[derive(Default)]
         pub struct A;
         let mut world = World::default();
         let sys = (|_comps: &A| Ok(())).system();
         let mut dispatch = DispatcherBuilder::new().add_system(sys).build(&mut world);
-        dispatch.run_par(&world).unwrap();
-        dispatch.run_par(&world).unwrap();
-        dispatch.run_par(&world).unwrap();
+        dispatch.run_par(&world);
+        dispatch.run_par(&world);
+        dispatch.run_par(&world);
         assert!(world.get::<A>().is_ok());
         assert!(world.get_mut::<A>().is_ok());
     }
 
     #[cfg(feature = "parallel")]
     #[test]
-    #[wasm_bindgen_test]
     fn dispatch_par_stages() {
         #[derive(Default)]
         struct A;
@@ -182,20 +155,12 @@ mod tests {
         world.initialize::<A>();
         world.initialize::<B>();
         // Stage 1
-        fn sys1(_a: &A, _b: &B) -> SystemResult {
-            Ok(())
-        }
-        fn sys2(_a: &A, _b: &B) -> SystemResult {
-            Ok(())
-        }
+        fn sys1(_a: &A, _b: &B) {}
+        fn sys2(_a: &A, _b: &B) {}
         // Stage 2
-        fn sys3(_a: &A, _b: &mut B) -> SystemResult {
-            Ok(())
-        }
+        fn sys3(_a: &A, _b: &mut B) {}
         // Stage 3
-        fn sys4(_a: &A, _b: &mut B) -> SystemResult {
-            Ok(())
-        }
+        fn sys4(_a: &A, _b: &mut B) {}
         let mut dispatch = DispatcherBuilder::new()
             .add(sys1)
             .add(sys2)
@@ -206,7 +171,7 @@ mod tests {
         assert_eq!(dispatch.stages[0].len(), 2);
         assert_eq!(dispatch.stages[1].len(), 1);
         assert_eq!(dispatch.stages[2].len(), 1);
-        dispatch.run_par(&world).unwrap();
+        dispatch.run_par(&world);
 
         let mut dispatch = DispatcherBuilder::new()
             .add(sys1)
@@ -214,11 +179,11 @@ mod tests {
             .build(&mut world);
         assert_eq!(dispatch.stages.len(), 1);
         assert_eq!(dispatch.stages[0].len(), 2);
-        dispatch.run_par(&world).unwrap();
+        dispatch.run_par(&world);
 
         let mut dispatch = DispatcherBuilder::new().add(sys1).build(&mut world);
         assert_eq!(dispatch.stages.len(), 1);
         assert_eq!(dispatch.stages[0].len(), 1);
-        dispatch.run_par(&world).unwrap();
+        dispatch.run_par(&world);
     }
 }

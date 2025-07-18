@@ -11,20 +11,12 @@ struct A;
 struct B;
 
 // Stage 1
-fn sys1(_a: &A, _b: &B) -> SystemResult {
-    Ok(())
-}
-fn sys2(_a: &A, _b: &B) -> SystemResult {
-    Ok(())
-}
+fn sys1(_a: &A, _b: &B) {}
+fn sys2(_a: &A, _b: &B) {}
 // Stage 2
-fn sys3(_a: &A, _b: &mut B) -> SystemResult {
-    Ok(())
-}
+fn sys3(_a: &A, _b: &mut B) {}
 // Stage 3
-fn sys4(_a: &A, _b: &mut B) -> SystemResult {
-    Ok(())
-}
+fn sys4(_a: &A, _b: &mut B) {}
 
 fn init_world() -> World {
     let mut world = World::default();
@@ -56,6 +48,6 @@ fn run_dispatcher(b: &mut Bencher) {
         .add(sys4)
         .build(&mut world);
     b.iter(|| {
-        dispatch.run_seq(&world).unwrap();
+        dispatch.run_seq(&world);
     });
 }
