@@ -58,3 +58,265 @@
 
 # 2025-07-18 17:07:01.721022
 +N
+
+# 2025-07-18 17:17:09.648168
++/clear
+
+# 2025-07-18 17:17:11.790431
++/drop Cargo.toml
+
+# 2025-07-18 17:17:17.778729
++/drop benches/*
+
+# 2025-07-18 17:17:19.164543
++/clear
+
+# 2025-07-18 17:17:34.151676
++/read src/*
+
+# 2025-07-18 17:18:42.402456
++/add ai.txt
+
+# 2025-07-18 17:20:32.979116
++/read Cargo.toml
+
+# 2025-07-18 17:25:07.834407
++/drop ai.txt
+
+# 2025-07-18 17:25:09.625586
++/add ai.md
+
+# 2025-07-18 17:29:08.454444
++Go through the entirety of the code. For every single public struct, trait and function, write down the signature and doc comments in ai.md. Make sure to include the crate-level documentation too. Finally, include the crate name and version from Cargo.toml.
++
++For example, for the following rust code:
++```
++//! Description of my crate
++pub struct A<T> {
++    /// Member b
++    pub b: i32,
++    /// Inner member
++    inner: T,
++}
++impl<T: Default> A<A> {
++    /// Creates a new A
++    pub const fn new() -> Self {
++        Self {
++            b: 5,
++            inner: T::default(),
++        }
++    }
++}
++pub trait MyTrait {
++    /// Abc does stuff
++    fn abc() -> Result<u32, ()>;
++}
++
++pub fn free_function() -> Option<u32> {
++    prelude::some_function();
++    return Some(5);
++}
++
++pub mod prelude {
++    pub use owo::some_function;
++    mod owo {
++        pub fn some_function() {}
++    }
++}
++```
++
++ai.md should look like this:
++```
++# AI Documentation for MyCrate v0.3.2.
++
++## Description of the crate
++Description of my crate
++
++### Module `root`
++
++```
++pub struct A<T> {
++    /// Member b
++    pub b: i32,
++}
++impl<T: Default> A<A> {
++    /// Creates a new A
++    pub const fn new() -> Self;
++}
++
++pub trait MyTrait {
++    /// Abc does stuff
++    fn abc() -> Result<u32, ()>;
++}
++
++pub fn free_function() -> Option<u32>;
++```
++
++### Module `prelude`
++
++```
++pub fn some_function() {}
++```
+
+# 2025-07-18 17:32:06.887707
++/clear
+
+# 2025-07-18 17:33:27.761599
++Go through the entirety of the code. For every single public struct, trait and function, write down the signature and doc comments in ai.md. Make sure to include the crate-level documentation too. Finally, include the crate name and version from Cargo.toml.
++Only include things that are public and will visible from users of the crate. Do not include pub(crate) or private internals. Do include `#[derive(...)]`, but not `#[allow]` and others.
++
++For example, for the following rust code:
++```
++//! Description of my crate
++#[derive(Debug, Display)]
++pub struct A<T> {
++    /// Member b
++    pub b: i32,
++    /// Inner member
++    inner: T,
++}
++impl<T: Default> A<A> {
++    /// Creates a new A
++    pub const fn new() -> Self {
++        Self {
++            b: 5,
++            inner: T::default(),
++        }
++    }
++}
++pub trait MyTrait {
++    /// Abc does stuff
++    fn abc() -> Result<u32, ()>;
++}
++
++pub fn free_function() -> Option<u32> {
++    prelude::some_function();
++    return Some(5);
++}
++
++pub mod prelude {
++    pub use owo::some_function;
++    mod owo {
++        pub fn some_function() {}
++    }
++}
++```
++
++ai.md should look like this:
++```
++# AI Documentation for MyCrate v0.3.2.
++
++## Description of the crate
++Description of my crate
++
++### Module `root`
++
++```
++#[derive(Debug, Display)]
++pub struct A<T> {
++    /// Member b
++    pub b: i32,
++}
++impl<T: Default> A<A> {
++    /// Creates a new A
++    pub const fn new() -> Self;
++}
++
++pub trait MyTrait {
++    /// Abc does stuff
++    fn abc() -> Result<u32, ()>;
++}
++
++pub fn free_function() -> Option<u32>;
++```
++
++### Module `prelude`
++
++```
++pub fn some_function() {}
++```
+
+# 2025-07-18 17:41:33.580906
++/clear
+
+# 2025-07-18 17:41:35.176741
++/add ai.md
+
+# 2025-07-18 17:41:57.480366
++/clear
+
+# 2025-07-18 17:41:58.194593
++Go through the entirety of the code. For every single public struct, trait and function, write down the signature and doc comments in ai.md. Make sure to include the crate-level documentation too. Finally, include the crate name and version from Cargo.toml.
++Only include things that are public and will visible from users of the crate. Do not include pub(crate) or private internals. Do include `#[derive(...)]` and `#[cfg(...)]`, but not `#[allow(...)]`. Get rid of empty lines entirely. Get rid of empty comment lines that don't have text at the end.
++When deciding which module something is part of, always view it from the crate user's perspective, taking re-exports into account, and always use the one closest to the root module (lib.rs or main.rs)
++
++For example, for the following rust code:
++```
++//! Description of my crate
++#[derive(Debug, Display)]
++pub struct A<T> {
++    /// Member b
++    pub b: i32,
++    /// Inner member
++    inner: T,
++}
++impl<T: Default> A<A> {
++    /// Creates a new A
++    pub const fn new() -> Self {
++        Self {
++            b: 5,
++            inner: T::default(),
++        }
++    }
++}
++pub trait MyTrait {
++    /// Abc does stuff
++    fn abc() -> Result<u32, ()>;
++}
++
++pub fn free_function() -> Option<u32> {
++    prelude::some_function();
++    return Some(5);
++}
++
++pub mod prelude {
++    pub use owo::some_function;
++    pub use owo::some_function2;
++    mod owo {
++        pub fn some_function() {}
++        pub fn some_function2() {}
++    }
++}
++pub use prelude::some_function2;
++```
++
++ai.md should look like this:
++```
++# AI Documentation for MyCrate v0.3.2.
++
++## Description of the crate
++Description of my crate
++
++### Module `root`
++```
++#[derive(Debug, Display)]
++pub struct A<T> {
++    /// Member b
++    pub b: i32,
++}
++impl<T: Default> A<A> {
++    /// Creates a new A
++    pub const fn new() -> Self;
++}
++pub trait MyTrait {
++    /// Abc does stuff
++    fn abc() -> Result<u32, ()>;
++}
++pub fn free_function() -> Option<u32>;
++pub fn some_function2();
++```
++
++### Module `prelude`
++```
++pub fn some_function() {}
++```
